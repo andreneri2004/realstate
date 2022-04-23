@@ -39,11 +39,11 @@ class User extends Authenticatable
 
     public function realState(){
 
-        return $this->hasMany(RealState::class);
+        return $this->hasMany(RealState::class, 'user_id', 'id');
     }
 
     public function userProfile(){
-        return $this->hasOne(UserProfile::class);
+        return $this->hasOne(UserProfile::class, 'user_id', 'id');
     }
 
 }

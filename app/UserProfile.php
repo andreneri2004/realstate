@@ -10,6 +10,6 @@ class UserProfile extends Model
 
     protected $fillable = ['about', 'social_networks',  'phone', 'mobile_phone'];
     public function user(){
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 }

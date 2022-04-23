@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\UserRequest;
 use App\User;
 use App\Api\ApiMessages;
 use Illuminate\Support\Facades\Validator;
@@ -34,7 +33,7 @@ class UserController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(UserRequest $request)
+    public function store(Request $request)
     {
         $data = $request->all();
 
@@ -56,15 +55,18 @@ class UserController extends Controller
             $data['password'] = bcrypt($data['password']);
 
             $user = $this->user->create($data);
+            isset($data['social_networks']) ? $data['social_networks'] : $data['social_networks'] = NULL;
+            isset($data['about']) ? $data['about'] : $data['about'] = NULL;
             $user->userProfile()->create(
                 [
                     'phone' => $data['phone'],
-                    'mobile_phone' => $data['mobile_phone']
+                    'mobile_phone' => $data['mobile_phone'],
+                    'social_networks' => $data['social_networks'],
+                    'about' => $data['about']
                 ]
             );
             return Response()->json([
-                'success' => 'Usuário salvo com sucesso!',
-                'data' => $user
+                'success' => 'Usuário salvo com sucesso!'
             ], 200);
         } catch (\Throwable $th) {
             $message = new ApiMessages($th->getMessage());
@@ -81,7 +83,7 @@ class UserController extends Controller
     public function show($id)
     {
         try {
-            $user = $this->user->with('userProfile')->findOrFail($id);
+            $user = $this->user->with('userProfile')->with('realState')->findOrFail($id);
             $user->userProfile->social_networks = unserialize($user->userProfile->social_networks);
             return Response()->json(['data' => $user], 200);
         } catch (\Throwable $th) {
@@ -100,6 +102,7 @@ class UserController extends Controller
     public function update(Request $request, $id)
     {
         $data = $request->all();
+
 
         if ($request->has('password') || $request->get('password')) {
             $data['Password'] = bcrypt($data['password']);

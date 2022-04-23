@@ -36,10 +36,14 @@ class RealStateController extends Controller
                 $realState->categories()->sync($data['categories']);
             }
             if($images){
+                $imagesUploaded = [];
+
                 foreach($images as $image){
                     $path = $image->store('images', 'public');
-                    dd($path);
+                    $imagesUploaded[] = ['photo' => $path, 'is_thumb' => false];
                 }
+                //Salva varias imagens de uma só vez.
+                $realState->realStatePhotos()->createMany($imagesUploaded);
             }
 
             return response()->json([
@@ -56,6 +60,7 @@ class RealStateController extends Controller
     {
 
         $data = $request->all();
+        $images = $request->file('images');
 
         try {
             $realState = $this->realState->findOrFail($id);
@@ -65,6 +70,18 @@ class RealStateController extends Controller
 
                 $realState->categories()->sync($data['categories']);
             }
+
+            if($images){
+                $imagesUploaded = [];
+
+                foreach($images as $image){
+                    $path = $image->store('images', 'public');
+                    $imagesUploaded[] = ['photo' => $path, 'is_thumb' => false];
+                }
+                //Salva varias imagens de uma só vez.
+                $realState->realStatePhotos()->createMany($imagesUploaded);
+            }
+
 
             return Response()->json(['data' => 'Imóvel atualizado com sucesso!'], 200);
         } catch (\Throwable $th) {

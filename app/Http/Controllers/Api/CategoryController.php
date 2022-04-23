@@ -6,15 +6,18 @@ use App\Api\ApiMessages;
 use App\Category;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CategoryRequest;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CategoryController extends Controller
 {
+    use SoftDeletes;
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
     private $category;
+    protected $dates = ['deleted_at'];
     public function __construct(Category $category)
     {
         $this->category = $category;
@@ -42,7 +45,6 @@ class CategoryController extends Controller
 
             $category = $this->category->create($data);
             return Response()->json([
-                'data' => $category,
                 "success" => "Categoria salva com sucesso!"
             ], 200);
 
@@ -101,8 +103,7 @@ class CategoryController extends Controller
     public function destroy($id)
     {
         try {
-            $category = $this->category->findOrFail($id);
-            $category->delete();
+            $this->category->findOrFail($id)->delete();
             return Response()->json(['success' => 'Categoria removida com sucesso!'],200);
         } catch (\Throwable $th) {
             $message = new ApiMessages($th->getMessage());
