@@ -24,4 +24,7 @@ Route::namespace('Api')->prefix('v1')->group(function () {
     Route::resource('users', 'UserController');
     Route::resource('/categories', 'CategoryController');
     Route::get('/categories/{id}/real-states', 'CategoryController@realStates');
+    Route::delete('/photos/{id}', 'RealStatePhotoController@remove');
+    Route::put('/photos/setThumb/{photoId}/{realStateId}', 'RealStatePhotoController@setThumb');
+
 });

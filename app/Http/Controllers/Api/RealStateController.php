@@ -107,7 +107,7 @@ class RealStateController extends Controller
     public function show($id)
     {
         try {
-            $data = $this->realState->findOrFail($id);
+            $data = $this->realState->with('realStatePhotos')->findOrFail($id);
             return response()->json(['data' => $data], 200);
         } catch (\Throwable $th) {
             $message = new ApiMessages($th->getMessage());
