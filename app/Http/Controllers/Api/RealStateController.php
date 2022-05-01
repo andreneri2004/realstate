@@ -18,9 +18,11 @@ class RealStateController extends Controller
 
     public function index()
     {
-        $realState = $this->realState->paginate('10');
 
-        return response()->json($realState, 200);
+
+        $realState = auth('api')->user()->realState();
+
+        return response()->json($realState->paginate(10), 200);
     }
 
     public function store(RealStateRequest $request)
@@ -29,6 +31,9 @@ class RealStateController extends Controller
         $images = $request->file('images');
 
         try {
+
+            //pega o id do usuário que fez o login e coloca no campo.
+            $data['user_id'] = auth('api')->user()->id;
 
             $realState = $this->realState->create($data);
             if (isset($data['categories'])  && count($data['categories'])) {
@@ -63,7 +68,7 @@ class RealStateController extends Controller
         $images = $request->file('images');
 
         try {
-            $realState = $this->realState->findOrFail($id);
+            $realState = auth('api')->user()->realState()->findOrFail($id);
             $realState->update($data);
 
             if (isset($data['categories'])  && count($data['categories'])) {
@@ -81,8 +86,6 @@ class RealStateController extends Controller
                 //Salva varias imagens de uma só vez.
                 $realState->realStatePhotos()->createMany($imagesUploaded);
             }
-
-
             return Response()->json(['data' => 'Imóvel atualizado com sucesso!'], 200);
         } catch (\Throwable $th) {
             $message = new ApiMessages($th->getMessage());
@@ -93,7 +96,7 @@ class RealStateController extends Controller
     public function destroy($id)
     {
         try {
-            $realState = $this->realState->findOrFail($id);
+            $realState = auth('api')->user()->realState()->findOrFail($id);
             $realState->delete();
             return Response()->json([
                 'msg' => 'Imovél removido com sucesso!'
@@ -107,7 +110,7 @@ class RealStateController extends Controller
     public function show($id)
     {
         try {
-            $data = $this->realState->with('realStatePhotos')->findOrFail($id);
+            $data = auth('api')->user()->realState()->with('realStatePhotos')->findOrFail($id);
             return response()->json(['data' => $data], 200);
         } catch (\Throwable $th) {
             $message = new ApiMessages($th->getMessage());
